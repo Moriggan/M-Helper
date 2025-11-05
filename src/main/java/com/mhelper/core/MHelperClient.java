@@ -8,6 +8,13 @@ import com.mhelper.hud.HelperHudRenderer;
 import com.mhelper.movement.ElytraAutomation;
 import com.mhelper.movement.AutoWaterMlg;
 import com.mhelper.ui.ImGuiOverlay;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBinding;
 import com.mhelper.combat.MaceStateTracker;
 import com.mhelper.config.MHelperConfig;
 import com.mhelper.hud.HelperHudRenderer;
@@ -85,6 +92,8 @@ public class MHelperClient implements ClientModInitializer {
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(this::onClientTick);
+        HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
+            hudRenderer.render(drawContext, tickDelta, enabled);
         HudRenderCallback.EVENT.register((DrawContext drawContext, RenderTickCounter tickCounter) -> {
             float tickDelta = tickCounter.getTickDelta(true);
             hudRenderer.render(drawContext, tickDelta, enabled);

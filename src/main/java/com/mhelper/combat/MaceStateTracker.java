@@ -198,6 +198,36 @@ public class MaceStateTracker {
             Vec3d min = playerPos.subtract(searchRadius, searchRadius, searchRadius);
             Vec3d max = playerPos.add(searchRadius, searchRadius, searchRadius);
             net.minecraft.util.math.Box searchBox = new net.minecraft.util.math.Box(min, max);
+
+            List<LivingEntity> candidates = client.world.getEntitiesByClass(
+                    LivingEntity.class,
+                    searchBox,
+                    entity -> entity != player && entity.isAlive() && !entity.isRemoved());
+
+            LivingEntity closest = null;
+            double closestDistance = Double.MAX_VALUE;
+            Vec3d down = new Vec3d(0, -1, 0);
+
+            for (LivingEntity entity : candidates) {
+                if (entity.getY() >= player.getY()) {
+                    continue;
+                }
+
+                Vec3d targetPos = entity.getPos().add(0, entity.getStandingEyeHeight() * 0.6, 0);
+                Vec3d toTarget = targetPos.subtract(playerPos).normalize();
+                double alignment = toTarget.dotProduct(down);
+                if (alignment <= 0.5) {
+                    continue;
+                }
+
+                double distance = player.squaredDistanceTo(entity);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closest = entity;
+                }
+            }
+
+            return Optional.ofNullable(closest);
             java.util.List<LivingEntity> candidates = client.world.getEntitiesByClass(
                     LivingEntity.class,
                     searchBox,
