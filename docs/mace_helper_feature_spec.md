@@ -86,6 +86,7 @@ This spec describes the concrete behaviors, UI, and configuration for the Mace H
 * Overlay unlocks the in-game cursor while visible and respects keyboard navigation/mouse capture via ImGui's IO flags.
 
 ## 7. Configuration Options
+## 4. Configuration Options
 
 | Key | Type | Default | Description |
 | --- | ---- | ------- | ----------- |
@@ -110,12 +111,16 @@ This spec describes the concrete behaviors, UI, and configuration for the Mace H
 | `autoWaterMlgRefill` | boolean | `true` | Attempt to pick water back up after landing |
 
 ## 8. Accessibility
+| `requireSneakForAuto` | boolean | `false` | If true, automation triggers only while sneaking |
+
+## 5. Accessibility
 
 * Provide colorblind-friendly palette (configurable) using tri-tone with distinct luminosity.
 * Allow resizing HUD elements via slider (0.5x - 1.5x scale).
 * Support toggling audio cues and customizing volume multiplier.
 
 ## 9. Safety Considerations
+## 6. Safety Considerations
 
 * Include disclaimers in config screen that automation may be disallowed on some servers.
 * Provide a panic hotkey to disable all automation in real-time.

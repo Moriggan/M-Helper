@@ -68,6 +68,7 @@ public class AutoClicker {
 
         client.interactionManager.attackEntity(client.player, target);
         client.player.swingHand(Hand.MAIN_HAND);
+        client.doAttack();
         lastClickTimeNs = now;
     }
 }
