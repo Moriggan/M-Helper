@@ -14,6 +14,7 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.List;
 import java.util.Optional;
 
 public class MaceStateTracker {
@@ -197,6 +198,11 @@ public class MaceStateTracker {
             Vec3d min = playerPos.subtract(searchRadius, searchRadius, searchRadius);
             Vec3d max = playerPos.add(searchRadius, searchRadius, searchRadius);
             net.minecraft.util.math.Box searchBox = new net.minecraft.util.math.Box(min, max);
+            java.util.List<LivingEntity> candidates = client.world.getEntitiesByClass(
+                    LivingEntity.class,
+                    searchBox,
+                    entity -> entity != player && entity.isAlive() && !entity.isRemoved());
+            return candidates.stream()
             return client.world.getEntitiesByClass(LivingEntity.class, searchBox, entity -> entity != player && entity.isAlive() && !entity.isRemoved())
             return client.world.getEntitiesByClass(LivingEntity.class, net.minecraft.util.math.Box.enclosing(min, max), entity -> entity != player && entity.isAlive() && !entity.isRemoved())
                     .stream()
