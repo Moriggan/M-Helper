@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "mhelper",
+  "version": "${version}",
+  "name": "Mace Hit Helper",
+  "description": "Client-side helper for timing mace slams, aim alignment, and elytra automation.",
+  "authors": ["M-Helper Team"],
+  "contact": {
+    "homepage": "https://example.com/mhelper",
+    "sources": "https://example.com/mhelper/src"
+  },
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.mhelper.core.MHelperClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.11",
+    "minecraft": "${minecraft_version}",
+    "fabric-api": "*"
+  },
+  "mixins": [
+  ]
+}
