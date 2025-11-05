@@ -34,6 +34,7 @@ can be toggled with the `G` key. Hit `B` for an instant panic disable and `O` to
 ## Getting Started (Implementation Notes)
 
 1. Install JDK 21.
+2. Run `gradle build` with your locally installed Gradle distribution (or `./gradlew build` if you provide a wrapper script) to compile the mod.
 2. Run `gradle build` (or `./gradlew build` if you have the Gradle wrapper installed) to compile the mod.
 3. Copy `build/libs/mhelper-<version>.jar` into your Minecraft `mods/` folder alongside Fabric API.
 4. Launch the Fabric client and use the default hotkeys:

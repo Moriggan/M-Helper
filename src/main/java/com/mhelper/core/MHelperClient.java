@@ -19,6 +19,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
 
@@ -84,6 +85,9 @@ public class MHelperClient implements ClientModInitializer {
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(this::onClientTick);
+        HudRenderCallback.EVENT.register((DrawContext drawContext, RenderTickCounter tickCounter) -> {
+            float tickDelta = tickCounter.getTickDelta(true);
+            hudRenderer.render(drawContext, tickDelta, enabled);
         HudRenderCallback.EVENT.register((matrixStack, tickDelta) -> {
             hudRenderer.render(matrixStack, tickDelta, enabled);
             imguiOverlay.render(MinecraftClient.getInstance(), tickDelta);

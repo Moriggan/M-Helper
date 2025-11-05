@@ -37,6 +37,8 @@ public class MHelperConfigScreen extends Screen {
         y += spacing;
         addDrawableChild(new DoubleSliderWidget(centerX - buttonWidth / 2, y, buttonWidth, buttonHeight, Text.translatable("config.mhelper.auto_glide"), config.autoGlideThreshold, 0.0, 6.0) {
             @Override
+            protected void onValueChanged(double value) {
+                config.autoGlideThreshold = value;
             protected void applyValue() {
                 config.autoGlideThreshold = getScaledValue();
             }
@@ -44,6 +46,8 @@ public class MHelperConfigScreen extends Screen {
         y += spacing;
         addDrawableChild(new DoubleSliderWidget(centerX - buttonWidth / 2, y, buttonWidth, buttonHeight, Text.translatable("config.mhelper.hud_scale"), config.hudScale, 0.5, 1.5) {
             @Override
+            protected void onValueChanged(double value) {
+                config.hudScale = value;
             protected void applyValue() {
                 config.hudScale = getScaledValue();
             }
@@ -51,6 +55,8 @@ public class MHelperConfigScreen extends Screen {
         y += spacing;
         addDrawableChild(new DoubleSliderWidget(centerX - buttonWidth / 2, y, buttonWidth, buttonHeight, Text.translatable("config.mhelper.opacity"), config.timingBarOpacity, 0.2, 1.0) {
             @Override
+            protected void onValueChanged(double value) {
+                config.timingBarOpacity = value;
             protected void applyValue() {
                 config.timingBarOpacity = getScaledValue();
             }
@@ -62,6 +68,8 @@ public class MHelperConfigScreen extends Screen {
         y += spacing;
         addDrawableChild(new DoubleSliderWidget(centerX - buttonWidth / 2, y, buttonWidth, buttonHeight, Text.translatable("config.mhelper.chime_volume"), config.chimeVolume, 0.0, 1.0) {
             @Override
+            protected void onValueChanged(double value) {
+                config.chimeVolume = value;
             protected void applyValue() {
                 config.chimeVolume = getScaledValue();
             }
@@ -78,6 +86,8 @@ public class MHelperConfigScreen extends Screen {
         y += spacing;
         addDrawableChild(new DoubleSliderWidget(centerX - buttonWidth / 2, y, buttonWidth, buttonHeight, Text.translatable("config.mhelper.fall_threshold"), config.fallDistanceThreshold, 0.5, 5.0) {
             @Override
+            protected void onValueChanged(double value) {
+                config.fallDistanceThreshold = value;
             protected void applyValue() {
                 config.fallDistanceThreshold = getScaledValue();
             }
@@ -85,6 +95,8 @@ public class MHelperConfigScreen extends Screen {
         y += spacing;
         addDrawableChild(new DoubleSliderWidget(centerX - buttonWidth / 2, y, buttonWidth, buttonHeight, Text.translatable("config.mhelper.perfect_start"), config.perfectWindowStart, 0.05, 0.6) {
             @Override
+            protected void onValueChanged(double value) {
+                config.perfectWindowStart = value;
             protected void applyValue() {
                 config.perfectWindowStart = getScaledValue();
             }
@@ -92,6 +104,8 @@ public class MHelperConfigScreen extends Screen {
         y += spacing;
         addDrawableChild(new DoubleSliderWidget(centerX - buttonWidth / 2, y, buttonWidth, buttonHeight, Text.translatable("config.mhelper.perfect_end"), config.perfectWindowEnd, 0.2, 0.8) {
             @Override
+            protected void onValueChanged(double value) {
+                config.perfectWindowEnd = value;
             protected void applyValue() {
                 config.perfectWindowEnd = getScaledValue();
             }
@@ -116,6 +130,7 @@ public class MHelperConfigScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.renderBackground(context, mouseX, mouseY, delta);
         this.renderBackground(context);
         super.render(context, mouseX, mouseY, delta);
         context.drawCenteredTextWithShadow(textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);
@@ -146,6 +161,17 @@ public class MHelperConfigScreen extends Screen {
         }
 
         @Override
+        protected void applyValue() {
+            onValueChanged(getScaledValue());
+            updateMessage();
+        }
+
+        @Override
+        protected void updateMessage() {
+            this.setMessage(label.copy().append(Text.literal(String.format(": %.2f", getScaledValue()))));
+        }
+
+        protected abstract void onValueChanged(double value);
         protected void updateMessage() {
             this.setMessage(label.copy().append(Text.literal(String.format(": %.2f", getScaledValue()))));
         }

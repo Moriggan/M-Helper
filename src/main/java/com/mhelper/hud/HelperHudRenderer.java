@@ -7,6 +7,9 @@ import com.mhelper.config.MHelperConfig;
 import com.mhelper.config.MHelperConfig.HudPalette;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferRenderer;
 import net.minecraft.client.render.GameRenderer;
@@ -26,6 +29,13 @@ public class HelperHudRenderer {
     }
 
     public void render(DrawContext context, float tickDelta, boolean enabled) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client == null) {
+            return;
+        }
+
+        int width = client.getWindow().getScaledWidth();
+        int height = client.getWindow().getScaledHeight();
         Window window = MinecraftClient.getInstance().getWindow();
         int width = window.getScaledWidth();
         int height = window.getScaledHeight();
@@ -79,6 +89,8 @@ public class HelperHudRenderer {
         };
 
         context.fill(x, y, x + filledWidth, y + barHeight, fillColor);
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        context.drawCenteredTextWithShadow(textRenderer, maceStateTracker.getCountdownText(), width / 2, y - (int) (12 * scale), 0xFFFFFF);
         context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, maceStateTracker.getCountdownText(), width / 2, y - (int) (12 * scale), 0xFFFFFF);
     }
 
@@ -94,6 +106,21 @@ public class HelperHudRenderer {
 
         double angularError = tracker.getAngularDifference();
         double scale = MathHelper.clamp(MHelperConfig.get().hudScale, 0.5, 1.5);
+        int centerX = width / 2;
+        int centerY = height / 2;
+
+        int crossLength = (int) MathHelper.clamp(angularError * 2.2 * scale, 8.0 * scale, 38.0 * scale);
+        int color = withOpacity(0x66CCFF, 0.75);
+
+        context.fill(centerX - 1, centerY - crossLength, centerX + 1, centerY + crossLength, color);
+        context.fill(centerX - crossLength, centerY - 1, centerX + crossLength, centerY + 1, color);
+
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        String status = String.format("%.1f° / %.1f°", Math.abs(tracker.getYawDifference()), Math.abs(tracker.getPitchDifference()));
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal(status), centerX, centerY + crossLength + 6, 0xA0CFF5);
+
+        if (Math.abs(tracker.getYawDifference()) <= 3 && Math.abs(tracker.getPitchDifference()) <= 3) {
+            context.drawCenteredTextWithShadow(textRenderer, Text.literal("Aligned!"), centerX, centerY - crossLength - 10, 0x80FF8F);
         float radius = (float) MathHelper.clamp(angularError * 1.5f * scale, 6.0 * scale, 32.0 * scale);
         int centerX = width / 2;
         int centerY = height / 2;
@@ -112,6 +139,9 @@ public class HelperHudRenderer {
         return (a << 24) | rgb;
     }
 
+    private void renderSupportStatus(DrawContext context, int width, int height, boolean enabled) {
+        MHelperConfig config = MHelperConfig.get();
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
     private void drawRing(DrawContext context, int centerX, int centerY, float radius, float thickness, int color) {
         Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
         int segments = 48;
@@ -147,6 +177,15 @@ public class HelperHudRenderer {
         int y = height - 50;
         int color = withOpacity(0xFFFFFF, 0.8);
         if (!enabled) {
+            context.drawTextWithShadow(textRenderer, Text.literal("Helper paused (press G to resume)"), x, y, color);
+            return;
+        }
+
+        context.drawTextWithShadow(textRenderer, Text.literal("Auto Clicker: " + (config.autoClickerEnabled ? "ON" : "OFF")), x, y, color);
+        y += 10;
+        context.drawTextWithShadow(textRenderer, Text.literal("Critical Helper: " + (config.criticalHelperEnabled ? "ON" : "OFF")), x, y, color);
+        y += 10;
+        context.drawTextWithShadow(textRenderer, Text.literal("Water MLG: " + (config.autoWaterMlgEnabled ? "ON" : "OFF")), x, y, color);
             MinecraftClient.getInstance().textRenderer.drawWithShadow(context.getMatrices(),
                     "Helper paused (press G to resume)", x, y, color);
             return;

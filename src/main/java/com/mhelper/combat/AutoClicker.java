@@ -3,6 +3,7 @@ package com.mhelper.combat;
 import com.mhelper.config.MHelperConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -65,6 +66,8 @@ public class AutoClicker {
             return;
         }
 
+        client.interactionManager.attackEntity(client.player, target);
+        client.player.swingHand(Hand.MAIN_HAND);
         client.doAttack();
         lastClickTimeNs = now;
     }
