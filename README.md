@@ -13,6 +13,18 @@ The Mace Hit Helper now ships:
 * An ImGui control center for instant toggles, sliders, timing window tuning, and recommended load-outs.
 
 All automation runs client-side and can be paused with `G`. Hit `B` for an instant panic disable and `O` to pop open the ImGui control center (the cursor unlocks automatically; press `O` again to re-lock). Dedicated hotkeys (`H`, `J`, `K`) flip the auto clicker, critical helper, and water MLG without touching the overlay.
+Minecraft Assist Features Mod focused on helping players execute perfect mace slams in version **1.21.5**.
+
+## Overview
+
+The Mace Hit Helper aims to:
+
+* Predict the optimal swing window for mace slam attacks when falling.
+* Guide crosshair aim toward the best target during the descent.
+* Automate elytra equipping/gliding so you can chain aerial combos without manual inventory juggling.
+
+This repository now ships a Fabric-based client mod that provides those quality-of-life helpers. All logic runs client-side and
+can be toggled with the `G` key. Hit `B` for an instant panic disable and `O` to open the in-game settings panel.
 
 ## Documents
 
@@ -31,6 +43,7 @@ All automation runs client-side and can be paused with `G`. Hit `B` for an insta
    * `H` — toggle the auto clicker module
    * `J` — toggle the critical-hit hop helper
    * `K` — toggle auto water MLG
+   * `O` — open the helper configuration screen
 
 ## Roadmap
 
@@ -40,6 +53,9 @@ All automation runs client-side and can be paused with `G`. Hit `B` for an insta
 - [x] Elytra auto-equip and restore logic
 - [x] ImGui control center with accessibility tuning
 - [x] Auto clicker, critical helper, and auto water MLG modules
+- [x] HUD overlay for timing bar and aim ring
+- [x] Elytra auto-equip and restore logic
+- [x] Config screen UI with accessibility tuning
 
 Contributions welcome—open an issue or PR with ideas for additional combat helpers.
 

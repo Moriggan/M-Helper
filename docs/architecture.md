@@ -9,6 +9,10 @@ This document outlines a suggested architecture for implementing the Minecraft 1
 * **Language:** Java
 * **Rendering:** Fabric Rendering API for HUD overlays plus `imgui-java` (GLFW/GL3 bindings) for the control center
 * **Configuration:** Gson-backed JSON persisted to Fabric's config directory and edited via the ImGui overlay
+* **Language:** Java with Kotlin optional for utility code
+* **Mixins:** SpongePowered Mixin via Fabric for client event hooks
+* **Rendering:** Fabric Rendering API for HUD overlays
+* **Configuration:** Cloth Config API + AutoConfig for user-friendly settings menus
 
 ## High-Level Modules
 
@@ -20,6 +24,11 @@ This document outlines a suggested architecture for implementing the Minecraft 1
 | `hud` | Renders timing bars, aim rings, and active module status strip |
 | `ui` | Hosts the ImGui control center windows |
 | `config` | Declares user-configurable options and persists them via Gson |
+| `core` | Initializes the mod, registers event listeners, loads config |
+| `combat` | Tracks mace charge state, predicts slam timing, suggests attack windows |
+| `movement` | Monitors fall speed, toggles elytra auto-equip, and cancels glide when unsafe |
+| `hud` | Renders crosshair indicators, timing bars, and textual hints |
+| `config` | Declares user-configurable options and persists them |
 
 ### Core Module
 
@@ -39,6 +48,29 @@ This document outlines a suggested architecture for implementing the Minecraft 1
 * Elytra automation mirrors the original plan: equips mid-fall, starts gliding at threshold, restores armor after landing.
 * `AutoWaterMlg` watches `player.fallDistance`, equips a water bucket from the hotbar, places water toward the predicted landing block, and re-collects it upon landing.
 * Honors sneaking requirements and panic latch to avoid unwanted automation on restrictive servers.
+* Hooks into `AttackBlockCallback` and `AttackEntityCallback` to detect when the player starts charging a mace attack.
+* Maintains an internal `MaceChargeTracker` that records:
+  * Timestamp when the player begins charging.
+  * Player vertical velocity and fall distance at the moment of charge.
+  * Whether the player is currently gliding with an elytra.
+* Predicts the **optimal slam window**:
+  * Minimum fall distance: 1.5 blocks (configurable).
+  * Impact damage multiplier threshold: 1.5x when fall distance ≥ 5 blocks.
+  * For precise timing, compute `timeToGround` by ray tracing the player's downward velocity and collision boxes.
+* Exposes `MaceHitPrediction` containing:
+  * `estimatedImpactTick`
+  * `criticalWindowStartTick`
+  * `criticalWindowEndTick`
+  * `recommendedAimVector`
+
+### Movement Module
+
+* Listens for player movement updates via `ClientTickEvents.END_CLIENT_TICK`.
+* If player is falling with a mace equipped in main hand and chest slot not occupied by elytra:
+  * Check config `autoEquipElytra`.
+  * If an elytra is found in inventory and the player is in mid-air for > configurable tick threshold, automatically equip it by sending a `ClickSlotC2SPacket`.
+* Automatically re-equips the previously worn chest armor when touching ground if config `reEquipArmor` is enabled.
+* Optional feature: `emergencyFireworkBoost` that auto-fires a rocket when gliding speed < threshold.
 
 ### HUD Module
 
@@ -61,6 +93,20 @@ This document outlines a suggested architecture for implementing the Minecraft 1
 * `MHelperConfig` holds gson-serializable fields for mace timing, Elytra automation, combat helpers, HUD appearance, and water MLG settings.
 * Reads/writes `config/mhelper.json` on demand; the ImGui overlay and keybind toggles mutate the singleton and call `save()`.
 * Existing vanilla-style screen remains available as a fallback but the ImGui overlay is the primary UX.
+  * **Timing Bar:** horizontal bar that fills as you approach the optimal slam window; color shifts from blue → yellow → red when ready.
+  * **Aim Reticle:** circle that narrows to indicate the recommended crosshair alignment vector. Uses ray cast intersection with the predicted enemy position.
+  * **Text Prompts:** "Swing in 0.4s" or "Impact Ready!" with color coding.
+* Supports toggling via keybinding (`GLFW.GLFW_KEY_G`) registered with `KeyBindingHelper`.
+
+### Config Module
+
+* Define `MHelperConfig` with fields such as:
+  * `boolean autoEquipElytra`
+  * `boolean reEquipArmor`
+  * `float fallDistanceThreshold`
+  * `float perfectWindowDuration`
+  * `HudStyle hudStyle`
+* Provide a config screen accessible from Mod Menu via `ClothConfig` integration.
 
 ## Data Flow
 

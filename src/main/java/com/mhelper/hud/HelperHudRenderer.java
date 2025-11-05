@@ -36,6 +36,18 @@ public class HelperHudRenderer {
             return;
         }
 
+        if (!enabled) {
+            return;
+        }
+
+        if (!maceStateTracker.isPrimed()) {
+            return;
+        }
+
+        Window window = MinecraftClient.getInstance().getWindow();
+        int width = window.getScaledWidth();
+        int height = window.getScaledHeight();
+
         renderTimingBar(context, width, height);
         renderAimAssist(context, width, height);
     }
