@@ -79,6 +79,7 @@ public class MaceStateTracker {
         if (timingStatus == TimingStatus.PERFECT && config.playPerfectChime && !perfectChimePlayed) {
             float volume = (float) MathHelper.clamp(config.chimeVolume, 0.0, 1.0);
             player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), volume, 1.2f);
+            player.playSound(net.minecraft.sound.SoundEvents.BLOCK_NOTE_BLOCK_BELL, volume, 1.2f);
             perfectChimePlayed = true;
         } else if (timingStatus != TimingStatus.PERFECT) {
             perfectChimePlayed = false;
@@ -197,6 +198,7 @@ public class MaceStateTracker {
             Vec3d max = playerPos.add(searchRadius, searchRadius, searchRadius);
             net.minecraft.util.math.Box searchBox = new net.minecraft.util.math.Box(min, max);
             return client.world.getEntitiesByClass(LivingEntity.class, searchBox, entity -> entity != player && entity.isAlive() && !entity.isRemoved())
+            return client.world.getEntitiesByClass(LivingEntity.class, net.minecraft.util.math.Box.enclosing(min, max), entity -> entity != player && entity.isAlive() && !entity.isRemoved())
                     .stream()
                     .filter(entity -> entity.getY() < player.getY())
                     .filter(entity -> {
