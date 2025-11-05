@@ -40,6 +40,9 @@ All automation runs client-side and can be paused with `G`. Hit `B` for an insta
 - [x] Elytra auto-equip and restore logic
 - [x] ImGui control center with accessibility tuning
 - [x] Auto clicker, critical helper, and auto water MLG modules
+- [x] HUD overlay for timing bar and aim ring
+- [x] Elytra auto-equip and restore logic
+- [x] Config screen UI with accessibility tuning
 
 Contributions welcome—open an issue or PR with ideas for additional combat helpers.
 
