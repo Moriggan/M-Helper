@@ -92,6 +92,9 @@ public class MHelperClient implements ClientModInitializer {
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(this::onClientTick);
+        HudRenderCallback.EVENT.register((drawContext, tickCounter) -> {
+            float tickDelta = tickCounter.getTickDelta(false);
+            hudRenderer.render(drawContext, tickDelta, enabled);
         HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
             hudRenderer.render(drawContext, tickDelta, enabled);
         HudRenderCallback.EVENT.register((DrawContext drawContext, RenderTickCounter tickCounter) -> {
