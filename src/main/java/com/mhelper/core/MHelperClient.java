@@ -1,5 +1,13 @@
 package com.mhelper.core;
 
+import com.mhelper.combat.AutoClicker;
+import com.mhelper.combat.CriticalHitHelper;
+import com.mhelper.combat.MaceStateTracker;
+import com.mhelper.config.MHelperConfig;
+import com.mhelper.hud.HelperHudRenderer;
+import com.mhelper.movement.ElytraAutomation;
+import com.mhelper.movement.AutoWaterMlg;
+import com.mhelper.ui.ImGuiOverlay;
 import com.mhelper.combat.MaceStateTracker;
 import com.mhelper.config.MHelperConfig;
 import com.mhelper.hud.HelperHudRenderer;
@@ -18,6 +26,16 @@ public class MHelperClient implements ClientModInitializer {
     private final MaceStateTracker maceStateTracker = new MaceStateTracker();
     private final ElytraAutomation elytraAutomation = new ElytraAutomation(maceStateTracker);
     private final HelperHudRenderer hudRenderer = new HelperHudRenderer(maceStateTracker);
+    private final AutoClicker autoClicker = new AutoClicker();
+    private final CriticalHitHelper criticalHitHelper = new CriticalHitHelper();
+    private final AutoWaterMlg autoWaterMlg = new AutoWaterMlg();
+    private final ImGuiOverlay imguiOverlay = new ImGuiOverlay();
+    private KeyBinding toggleKey;
+    private KeyBinding panicKey;
+    private KeyBinding configKey;
+    private KeyBinding autoClickerToggle;
+    private KeyBinding criticalToggle;
+    private KeyBinding autoMlgToggle;
     private KeyBinding toggleKey;
     private KeyBinding panicKey;
     private KeyBinding configKey;
@@ -46,6 +64,35 @@ public class MHelperClient implements ClientModInitializer {
                 GLFW.GLFW_KEY_O,
                 "mod.mhelper.name"
         ));
+        autoClickerToggle = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mhelper.auto_clicker",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_H,
+                "mod.mhelper.name"
+        ));
+        criticalToggle = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mhelper.critical_helper",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_J,
+                "mod.mhelper.name"
+        ));
+        autoMlgToggle = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mhelper.auto_mlg",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_K,
+                "mod.mhelper.name"
+        ));
+
+        ClientTickEvents.END_CLIENT_TICK.register(this::onClientTick);
+        HudRenderCallback.EVENT.register((matrixStack, tickDelta) -> {
+            hudRenderer.render(matrixStack, tickDelta, enabled);
+            imguiOverlay.render(MinecraftClient.getInstance(), tickDelta);
+        });
+    }
+
+    private void onClientTick(MinecraftClient client) {
+        imguiOverlay.ensureInitialized(client);
+
 
         ClientTickEvents.END_CLIENT_TICK.register(this::onClientTick);
         HudRenderCallback.EVENT.register((matrixStack, tickDelta) -> hudRenderer.render(matrixStack, tickDelta, enabled));
@@ -63,6 +110,29 @@ public class MHelperClient implements ClientModInitializer {
             enabled = false;
             panicLatched = true;
             maceStateTracker.reset();
+            autoClicker.reset();
+            criticalHitHelper.reset();
+            autoWaterMlg.reset();
+        }
+
+        while (configKey.wasPressed()) {
+            imguiOverlay.toggle(client);
+        }
+
+        MHelperConfig config = MHelperConfig.get();
+        while (autoClickerToggle.wasPressed()) {
+            config.autoClickerEnabled = !config.autoClickerEnabled;
+            config.save();
+        }
+
+        while (criticalToggle.wasPressed()) {
+            config.criticalHelperEnabled = !config.criticalHelperEnabled;
+            config.save();
+        }
+
+        while (autoMlgToggle.wasPressed()) {
+            config.autoWaterMlgEnabled = !config.autoWaterMlgEnabled;
+            config.save();
         }
 
         while (configKey.wasPressed()) {
@@ -75,6 +145,9 @@ public class MHelperClient implements ClientModInitializer {
 
         if (!enabled) {
             maceStateTracker.reset();
+            autoClicker.reset();
+            criticalHitHelper.reset();
+            autoWaterMlg.reset();
             return;
         }
 
@@ -84,5 +157,16 @@ public class MHelperClient implements ClientModInitializer {
 
         maceStateTracker.tick(client);
         elytraAutomation.tick(client);
+
+        if (imguiOverlay.isVisible()) {
+            autoClicker.reset();
+            criticalHitHelper.reset();
+            autoWaterMlg.reset();
+            return;
+        }
+
+        autoClicker.tick(client);
+        criticalHitHelper.tick(client);
+        autoWaterMlg.tick(client);
     }
 }

@@ -3,6 +3,7 @@
   "id": "mhelper",
   "version": "${version}",
   "name": "Mace Hit Helper",
+  "description": "Client-side helper for timing mace slams, aim alignment, ImGui tuning, and duel automation (auto clicker, crit hop, water MLG).",
   "description": "Client-side helper for timing mace slams, aim alignment, and elytra automation.",
   "authors": ["M-Helper Team"],
   "contact": {

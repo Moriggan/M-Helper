@@ -42,6 +42,16 @@ public class MHelperConfig {
     public HudPalette hudPalette = HudPalette.DEFAULT;
     public boolean requireSneakForAuto = false;
     public double fallDistanceThreshold = 1.5;
+    public boolean autoClickerEnabled = false;
+    public boolean autoClickerHoldToFire = true;
+    public double autoClickerCps = 12.0;
+    public double autoClickerCooldownThreshold = 0.92;
+    public boolean criticalHelperEnabled = true;
+    public double criticalHelperCooldownGate = 0.9;
+    public long criticalHelperJumpDelayMs = 65L;
+    public boolean autoWaterMlgEnabled = true;
+    public double autoWaterMlgFallDistance = 15.0;
+    public boolean autoWaterMlgRefill = true;
 
     private static MHelperConfig instance;
 

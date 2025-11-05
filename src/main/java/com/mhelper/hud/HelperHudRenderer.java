@@ -26,6 +26,16 @@ public class HelperHudRenderer {
     }
 
     public void render(DrawContext context, float tickDelta, boolean enabled) {
+        Window window = MinecraftClient.getInstance().getWindow();
+        int width = window.getScaledWidth();
+        int height = window.getScaledHeight();
+
+        renderSupportStatus(context, width, height, enabled);
+
+        if (!enabled || !maceStateTracker.isPrimed()) {
+            return;
+        }
+
         if (!enabled) {
             return;
         }
@@ -73,6 +83,10 @@ public class HelperHudRenderer {
     }
 
     private void renderAimAssist(DrawContext context, int width, int height) {
+        if (!MHelperConfig.get().showAimAssist) {
+            return;
+        }
+
         AimAssistTracker tracker = maceStateTracker.getAimAssistTracker();
         if (tracker.getTarget().isEmpty()) {
             return;
@@ -125,5 +139,26 @@ public class HelperHudRenderer {
 
         BufferRenderer.drawWithGlobalProgram(buffer.end());
         RenderSystem.disableBlend();
+    }
+
+    private void renderSupportStatus(DrawContext context, int width, int height, boolean enabled) {
+        MHelperConfig config = MHelperConfig.get();
+        int x = 8;
+        int y = height - 50;
+        int color = withOpacity(0xFFFFFF, 0.8);
+        if (!enabled) {
+            MinecraftClient.getInstance().textRenderer.drawWithShadow(context.getMatrices(),
+                    "Helper paused (press G to resume)", x, y, color);
+            return;
+        }
+
+        MinecraftClient.getInstance().textRenderer.drawWithShadow(context.getMatrices(),
+                "Auto Clicker: " + (config.autoClickerEnabled ? "ON" : "OFF"), x, y, color);
+        y += 10;
+        MinecraftClient.getInstance().textRenderer.drawWithShadow(context.getMatrices(),
+                "Critical Helper: " + (config.criticalHelperEnabled ? "ON" : "OFF"), x, y, color);
+        y += 10;
+        MinecraftClient.getInstance().textRenderer.drawWithShadow(context.getMatrices(),
+                "Water MLG: " + (config.autoWaterMlgEnabled ? "ON" : "OFF"), x, y, color);
     }
 }
