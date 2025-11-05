@@ -39,6 +39,8 @@ public class MHelperConfigScreen extends Screen {
             @Override
             protected void onValueChanged(double value) {
                 config.autoGlideThreshold = value;
+            protected void applyValue() {
+                config.autoGlideThreshold = getScaledValue();
             }
         });
         y += spacing;
@@ -46,6 +48,8 @@ public class MHelperConfigScreen extends Screen {
             @Override
             protected void onValueChanged(double value) {
                 config.hudScale = value;
+            protected void applyValue() {
+                config.hudScale = getScaledValue();
             }
         });
         y += spacing;
@@ -53,6 +57,8 @@ public class MHelperConfigScreen extends Screen {
             @Override
             protected void onValueChanged(double value) {
                 config.timingBarOpacity = value;
+            protected void applyValue() {
+                config.timingBarOpacity = getScaledValue();
             }
         });
         y += spacing;
@@ -64,6 +70,8 @@ public class MHelperConfigScreen extends Screen {
             @Override
             protected void onValueChanged(double value) {
                 config.chimeVolume = value;
+            protected void applyValue() {
+                config.chimeVolume = getScaledValue();
             }
         });
         y += spacing;
@@ -80,6 +88,8 @@ public class MHelperConfigScreen extends Screen {
             @Override
             protected void onValueChanged(double value) {
                 config.fallDistanceThreshold = value;
+            protected void applyValue() {
+                config.fallDistanceThreshold = getScaledValue();
             }
         });
         y += spacing;
@@ -87,6 +97,8 @@ public class MHelperConfigScreen extends Screen {
             @Override
             protected void onValueChanged(double value) {
                 config.perfectWindowStart = value;
+            protected void applyValue() {
+                config.perfectWindowStart = getScaledValue();
             }
         });
         y += spacing;
@@ -94,6 +106,8 @@ public class MHelperConfigScreen extends Screen {
             @Override
             protected void onValueChanged(double value) {
                 config.perfectWindowEnd = value;
+            protected void applyValue() {
+                config.perfectWindowEnd = getScaledValue();
             }
         });
         y += spacing;
@@ -117,6 +131,7 @@ public class MHelperConfigScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.renderBackground(context, mouseX, mouseY, delta);
+        this.renderBackground(context);
         super.render(context, mouseX, mouseY, delta);
         context.drawCenteredTextWithShadow(textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);
         int disclaimerY = this.height - 70;
@@ -157,5 +172,8 @@ public class MHelperConfigScreen extends Screen {
         }
 
         protected abstract void onValueChanged(double value);
+        protected void updateMessage() {
+            this.setMessage(label.copy().append(Text.literal(String.format(": %.2f", getScaledValue()))));
+        }
     }
 }
