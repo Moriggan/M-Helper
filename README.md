@@ -10,9 +10,9 @@ The Mace Hit Helper now ships:
 * Elytra auto-equip/gliding so you can chain aerial combos without manual inventory juggling.
 * 1.12-style auto clicker with configurable CPS and cooldown gating plus a critical-hit priming hop.
 * Auto water MLG that equips a bucket mid fall, places water, and re-collects it on landing.
-* An ImGui control center for instant toggles, sliders, and recommended load-outs.
+* An ImGui control center for instant toggles, sliders, timing window tuning, and recommended load-outs.
 
-All automation runs client-side and can be paused with `G`. Hit `B` for an instant panic disable and `O` to pop open the ImGui control center. Dedicated hotkeys (`H`, `J`, `K`) flip the auto clicker, critical helper, and water MLG without touching the overlay.
+All automation runs client-side and can be paused with `G`. Hit `B` for an instant panic disable and `O` to pop open the ImGui control center (the cursor unlocks automatically; press `O` again to re-lock). Dedicated hotkeys (`H`, `J`, `K`) flip the auto clicker, critical helper, and water MLG without touching the overlay.
 
 ## Documents
 

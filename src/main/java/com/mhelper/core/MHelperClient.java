@@ -78,7 +78,7 @@ public class MHelperClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(this::onClientTick);
         HudRenderCallback.EVENT.register((matrixStack, tickDelta) -> {
             hudRenderer.render(matrixStack, tickDelta, enabled);
-            imguiOverlay.render(tickDelta);
+            imguiOverlay.render(MinecraftClient.getInstance(), tickDelta);
         });
     }
 
@@ -102,7 +102,7 @@ public class MHelperClient implements ClientModInitializer {
         }
 
         while (configKey.wasPressed()) {
-            imguiOverlay.toggle();
+            imguiOverlay.toggle(client);
         }
 
         MHelperConfig config = MHelperConfig.get();
@@ -135,6 +135,14 @@ public class MHelperClient implements ClientModInitializer {
 
         maceStateTracker.tick(client);
         elytraAutomation.tick(client);
+
+        if (imguiOverlay.isVisible()) {
+            autoClicker.reset();
+            criticalHitHelper.reset();
+            autoWaterMlg.reset();
+            return;
+        }
+
         autoClicker.tick(client);
         criticalHitHelper.tick(client);
         autoWaterMlg.tick(client);

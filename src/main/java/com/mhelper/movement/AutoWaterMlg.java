@@ -27,6 +27,10 @@ public class AutoWaterMlg {
             return;
         }
 
+        if (client.isPaused() || client.currentScreen != null) {
+            return;
+        }
+
         if (!config.autoWaterMlgEnabled) {
             restorePreviousSlot(client);
             attemptedThisFall = false;

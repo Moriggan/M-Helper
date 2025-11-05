@@ -24,20 +24,41 @@ public class ImGuiOverlay {
         ImGui.createContext();
         ImGui.getIO().addConfigFlags(ImGuiConfigFlags.NavEnableKeyboard);
         ImGui.styleColorsDark();
+        ImGui.getIO().setMouseDrawCursor(false);
         long handle = client.getWindow().getHandle();
         glfw.init(handle, true);
         gl3.init("#version 150");
         initialized = true;
     }
 
-    public void toggle() {
+    public void toggle(MinecraftClient client) {
         visible = !visible;
-    }
 
-    public void render(float tickDelta) {
-        if (!visible || !initialized) {
+        if (client != null && client.mouse != null) {
+            if (visible) {
+                client.mouse.unlockCursor();
+            } else if (client.currentScreen == null) {
+                client.mouse.lockCursor();
+            }
+        }
+
+        if (!initialized) {
             return;
         }
+
+        ImGui.getIO().setMouseDrawCursor(visible);
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void render(MinecraftClient client, float tickDelta) {
+        if (!visible || !initialized || client == null || client.getWindow() == null) {
+            return;
+        }
+
+        ImGui.getIO().setMouseDrawCursor(true);
 
         glfw.newFrame();
         gl3.newFrame();
@@ -106,6 +127,45 @@ public class ImGuiOverlay {
         }
 
         ImGui.separator();
+        ImGui.text("Mace & Elytra");
+        ImGui.separator();
+
+        ImBoolean autoEquip = new ImBoolean(config.autoEquipElytra);
+        if (ImGui.checkbox("Auto-equip elytra", autoEquip)) {
+            config.autoEquipElytra = autoEquip.get();
+            config.save();
+        }
+        float[] glide = {(float) config.autoGlideThreshold};
+        if (ImGui.sliderFloat("Auto-glide threshold", glide, 1.0f, 6.0f, "%.1f blocks")) {
+            config.autoGlideThreshold = glide[0];
+            config.save();
+        }
+        float[] fallPrime = {(float) config.fallDistanceThreshold};
+        if (ImGui.sliderFloat("Prime slam at fall distance", fallPrime, 0.5f, 6.0f, "%.1f blocks")) {
+            config.fallDistanceThreshold = fallPrime[0];
+            config.save();
+        }
+        ImBoolean playChime = new ImBoolean(config.playPerfectChime);
+        if (ImGui.checkbox("Play perfect-window chime", playChime)) {
+            config.playPerfectChime = playChime.get();
+            config.save();
+        }
+        float[] chimeVolume = {(float) config.chimeVolume};
+        if (ImGui.sliderFloat("Chime volume", chimeVolume, 0.0f, 1.0f, "%.2f")) {
+            config.chimeVolume = chimeVolume[0];
+            config.save();
+        }
+        float[] perfectStart = {(float) config.perfectWindowStart};
+        float[] perfectEnd = {(float) config.perfectWindowEnd};
+        if (ImGui.dragFloatRange2("Perfect window (s)", perfectStart, perfectEnd, 0.0025f, 0.05f, 0.9f, "Start %.2f", "End %.2f")) {
+            float min = Math.min(perfectStart[0], perfectEnd[0] - 0.01f);
+            float max = Math.max(perfectEnd[0], min + 0.01f);
+            config.perfectWindowStart = Math.max(0.05f, min);
+            config.perfectWindowEnd = Math.min(0.9f, max);
+            config.save();
+        }
+
+        ImGui.separator();
         ImGui.text("Utility");
         ImGui.separator();
 
@@ -127,6 +187,19 @@ public class ImGuiOverlay {
             config.autoWaterMlgRefill = refill.get();
             config.save();
         }
+
+        ImGui.separator();
+        ImGui.text("Automation guardrails");
+        ImGui.separator();
+
+        ImBoolean requireSneak = new ImBoolean(config.requireSneakForAuto);
+        if (ImGui.checkbox("Require sneaking for automation", requireSneak)) {
+            config.requireSneakForAuto = requireSneak.get();
+            config.save();
+        }
+        ImGui.textWrapped(requireSneak.get()
+                ? "Helpers only fire while you hold sneak."
+                : "Sneaking temporarily pauses all helpers.");
 
         ImGui.separator();
         ImGui.text("Visuals");
@@ -171,6 +244,9 @@ public class ImGuiOverlay {
         ImGui.bulletText(status(config.criticalHelperEnabled, "Critical helper"));
         ImGui.bulletText(status(config.autoWaterMlgEnabled, "Auto water MLG"));
         ImGui.bulletText(status(config.autoEquipElytra, "Auto elytra"));
+        ImGui.separator();
+        ImGui.textColored(0.7f, 0.9f, 0.7f, 1f,
+                config.requireSneakForAuto ? "Sneak to enable helpers" : "Sneak to pause helpers");
 
         ImGui.end();
     }

@@ -24,6 +24,10 @@ public class CriticalHitHelper {
             return;
         }
 
+        if (client.isPaused() || client.currentScreen != null) {
+            return;
+        }
+
         if (config.requireSneakForAuto && !client.player.isSneaking()) {
             return;
         }

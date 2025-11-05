@@ -81,9 +81,9 @@ This spec describes the concrete behaviors, UI, and configuration for the Mace H
 ## 6. ImGui Control Center
 
 * Keybind (`O`) toggles an ImGui overlay rendered via imgui-java and the client's GLFW context.
-* Main window contains feature toggles, sliders, and numeric controls that persist to `mhelper.json` upon change.
+* Main window contains feature toggles, sliders, and numeric controls (timing window, automation guardrails, Elytra logic) that persist to `mhelper.json` upon change.
 * Secondary quick status window highlights recommended load-outs and shows which modules are active.
-* Overlay respects keyboard navigation and mouse capture via ImGui's IO flags.
+* Overlay unlocks the in-game cursor while visible and respects keyboard navigation/mouse capture via ImGui's IO flags.
 
 ## 7. Configuration Options
 

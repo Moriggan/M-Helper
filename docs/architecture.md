@@ -52,7 +52,8 @@ This document outlines a suggested architecture for implementing the Minecraft 1
 ### UI Module
 
 * `ImGuiOverlay` bootstraps imgui-java against Minecraft's GLFW window and GL3 context.
-* Provides a control center window with toggles/sliders plus a quick status panel with recommended setups.
+* Provides a control center window with toggles/sliders plus a quick status panel with recommended setups and sneak guardrail messaging.
+* Automatically unlocks/re-locks the Minecraft cursor while open and pauses auto-combat helpers so you can tune settings safely.
 * Saves config changes instantly when a checkbox or slider changes to keep the JSON on disk aligned with the overlay.
 
 ### Config Module
