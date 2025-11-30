@@ -7,6 +7,11 @@ import com.mhelper.config.MHelperConfig;
 import com.mhelper.config.MHelperConfig.HudPalette;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import com.mojang.blaze3d.vertex.BufferRenderer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.MinecraftClient;
@@ -140,7 +145,7 @@ public class HelperHudRenderer {
             buffer.vertex(matrix, centerX + cos * innerRadius, centerY + sin * innerRadius, 0).color(r, g, b, a);
         }
 
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
+        BufferUploader.drawWithGlobalProgram(buffer.end());
         RenderSystem.disableBlend();
     }
 
