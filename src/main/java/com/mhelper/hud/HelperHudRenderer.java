@@ -5,21 +5,19 @@ import com.mhelper.combat.MaceStateTracker.AimAssistTracker;
 import com.mhelper.combat.MaceStateTracker.TimingStatus;
 import com.mhelper.config.MHelperConfig;
 import com.mhelper.config.MHelperConfig.HudPalette;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.util.Window;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 public class HelperHudRenderer {
     private final MaceStateTracker maceStateTracker;
@@ -36,27 +34,12 @@ public class HelperHudRenderer {
 
         int width = client.getWindow().getScaledWidth();
         int height = client.getWindow().getScaledHeight();
-        Window window = MinecraftClient.getInstance().getWindow();
-        int width = window.getScaledWidth();
-        int height = window.getScaledHeight();
 
         renderSupportStatus(context, width, height, enabled);
 
         if (!enabled || !maceStateTracker.isPrimed()) {
             return;
         }
-
-        if (!enabled) {
-            return;
-        }
-
-        if (!maceStateTracker.isPrimed()) {
-            return;
-        }
-
-        Window window = MinecraftClient.getInstance().getWindow();
-        int width = window.getScaledWidth();
-        int height = window.getScaledHeight();
 
         renderTimingBar(context, width, height);
         renderAimAssist(context, width, height);
@@ -91,7 +74,6 @@ public class HelperHudRenderer {
         context.fill(x, y, x + filledWidth, y + barHeight, fillColor);
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         context.drawCenteredTextWithShadow(textRenderer, maceStateTracker.getCountdownText(), width / 2, y - (int) (12 * scale), 0xFFFFFF);
-        context.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, maceStateTracker.getCountdownText(), width / 2, y - (int) (12 * scale), 0xFFFFFF);
     }
 
     private void renderAimAssist(DrawContext context, int width, int height) {
@@ -109,22 +91,7 @@ public class HelperHudRenderer {
         int centerX = width / 2;
         int centerY = height / 2;
 
-        int crossLength = (int) MathHelper.clamp(angularError * 2.2 * scale, 8.0 * scale, 38.0 * scale);
-        int color = withOpacity(0x66CCFF, 0.75);
-
-        context.fill(centerX - 1, centerY - crossLength, centerX + 1, centerY + crossLength, color);
-        context.fill(centerX - crossLength, centerY - 1, centerX + crossLength, centerY + 1, color);
-
-        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        String status = String.format("%.1f° / %.1f°", Math.abs(tracker.getYawDifference()), Math.abs(tracker.getPitchDifference()));
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal(status), centerX, centerY + crossLength + 6, 0xA0CFF5);
-
-        if (Math.abs(tracker.getYawDifference()) <= 3 && Math.abs(tracker.getPitchDifference()) <= 3) {
-            context.drawCenteredTextWithShadow(textRenderer, Text.literal("Aligned!"), centerX, centerY - crossLength - 10, 0x80FF8F);
         float radius = (float) MathHelper.clamp(angularError * 1.5f * scale, 6.0 * scale, 32.0 * scale);
-        int centerX = width / 2;
-        int centerY = height / 2;
-
         int color = withOpacity(0xFFFFFF, 0.7);
         drawRing(context, centerX, centerY, radius, (float) Math.max(1.5f, 2.0f * scale), color);
 
@@ -132,6 +99,10 @@ public class HelperHudRenderer {
         if (aligned) {
             context.fill(centerX - 1, centerY - 8, centerX + 1, centerY + 8, withOpacity(0x00FF7F, 0.8));
         }
+
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        String status = String.format("%.1f° / %.1f°", Math.abs(tracker.getYawDifference()), Math.abs(tracker.getPitchDifference()));
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal(status), centerX, centerY + (int) (radius + 8), 0xA0CFF5);
     }
 
     private int withOpacity(int rgb, double opacity) {
@@ -139,9 +110,6 @@ public class HelperHudRenderer {
         return (a << 24) | rgb;
     }
 
-    private void renderSupportStatus(DrawContext context, int width, int height, boolean enabled) {
-        MHelperConfig config = MHelperConfig.get();
-        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
     private void drawRing(DrawContext context, int centerX, int centerY, float radius, float thickness, int color) {
         Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
         int segments = 48;
@@ -167,15 +135,17 @@ public class HelperHudRenderer {
             buffer.vertex(matrix, centerX + cos * innerRadius, centerY + sin * innerRadius, 0).color(r, g, b, a);
         }
 
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
+        BufferUploader.drawWithGlobalProgram(buffer.end());
         RenderSystem.disableBlend();
     }
 
     private void renderSupportStatus(DrawContext context, int width, int height, boolean enabled) {
         MHelperConfig config = MHelperConfig.get();
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         int x = 8;
         int y = height - 50;
         int color = withOpacity(0xFFFFFF, 0.8);
+
         if (!enabled) {
             context.drawTextWithShadow(textRenderer, Text.literal("Helper paused (press G to resume)"), x, y, color);
             return;
@@ -186,18 +156,5 @@ public class HelperHudRenderer {
         context.drawTextWithShadow(textRenderer, Text.literal("Critical Helper: " + (config.criticalHelperEnabled ? "ON" : "OFF")), x, y, color);
         y += 10;
         context.drawTextWithShadow(textRenderer, Text.literal("Water MLG: " + (config.autoWaterMlgEnabled ? "ON" : "OFF")), x, y, color);
-            MinecraftClient.getInstance().textRenderer.drawWithShadow(context.getMatrices(),
-                    "Helper paused (press G to resume)", x, y, color);
-            return;
-        }
-
-        MinecraftClient.getInstance().textRenderer.drawWithShadow(context.getMatrices(),
-                "Auto Clicker: " + (config.autoClickerEnabled ? "ON" : "OFF"), x, y, color);
-        y += 10;
-        MinecraftClient.getInstance().textRenderer.drawWithShadow(context.getMatrices(),
-                "Critical Helper: " + (config.criticalHelperEnabled ? "ON" : "OFF"), x, y, color);
-        y += 10;
-        MinecraftClient.getInstance().textRenderer.drawWithShadow(context.getMatrices(),
-                "Water MLG: " + (config.autoWaterMlgEnabled ? "ON" : "OFF"), x, y, color);
     }
 }

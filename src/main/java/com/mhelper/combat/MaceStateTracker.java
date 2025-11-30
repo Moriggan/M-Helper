@@ -80,7 +80,6 @@ public class MaceStateTracker {
         if (timingStatus == TimingStatus.PERFECT && config.playPerfectChime && !perfectChimePlayed) {
             float volume = (float) MathHelper.clamp(config.chimeVolume, 0.0, 1.0);
             player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), volume, 1.2f);
-            player.playSound(net.minecraft.sound.SoundEvents.BLOCK_NOTE_BLOCK_BELL, volume, 1.2f);
             perfectChimePlayed = true;
         } else if (timingStatus != TimingStatus.PERFECT) {
             perfectChimePlayed = false;
@@ -228,20 +227,6 @@ public class MaceStateTracker {
             }
 
             return Optional.ofNullable(closest);
-            java.util.List<LivingEntity> candidates = client.world.getEntitiesByClass(
-                    LivingEntity.class,
-                    searchBox,
-                    entity -> entity != player && entity.isAlive() && !entity.isRemoved());
-            return candidates.stream()
-            return client.world.getEntitiesByClass(LivingEntity.class, searchBox, entity -> entity != player && entity.isAlive() && !entity.isRemoved())
-            return client.world.getEntitiesByClass(LivingEntity.class, net.minecraft.util.math.Box.enclosing(min, max), entity -> entity != player && entity.isAlive() && !entity.isRemoved())
-                    .stream()
-                    .filter(entity -> entity.getY() < player.getY())
-                    .filter(entity -> {
-                        Vec3d toTarget = entity.getPos().add(0, entity.getStandingEyeHeight() * 0.6, 0).subtract(playerPos).normalize();
-                        return toTarget.dotProduct(new Vec3d(0, -1, 0)) > 0.5;
-                    })
-                    .min((a, b) -> Double.compare(player.squaredDistanceTo(a), player.squaredDistanceTo(b)));
         }
 
         public void reset() {
